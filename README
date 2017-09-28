@@ -1,0 +1,24 @@
+This repo exists to test some problems with git submodules experienced during autobuild of the OverTheWire games.
+
+The setup is as follows:
+- a main repository MAIN like this one 
+- a submodule SUB in the main repository, containing for instance the sourcecode of a game
+
+The MAIN repository is used in a development environment to work on the OverTheWire setup.
+The same repository is also fetched (in readonly mode) on a production server.
+
+The normal workflow for updating (e.g. fixing a bug) the source code of a game, is:
+- fix the code in SUB on the development setup and test whether it works
+- git commit the fix to the SUB repo, and push the commit
+- git commit the changed submodule reference in MAIN on the development environment, and push the commit
+
+At this point, the autobuild script will notice that the MAIN repository has changed and that
+it needs to build the games in the production setup. It uses this workflow:
+- git pull of the MAIN repo
+- ??? some magic here
+- build the games in each changed SUB repository
+
+It turns out that simply doing "git pull" is not sufficient on the MAIN repository, because
+the submodule does not automatically update. For instance, after a "git pull" on MAIN,
+the SUB repo status is "HEAD detached at 12345678", where 12345678 is the last commit
+the SUB repo was at before the changes were pushed from the development environment.
